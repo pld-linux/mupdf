@@ -1,0 +1,13 @@
+--- mupdf-1.3-source/Makethird.orig	2013-11-01 20:54:07.405347226 +0100
++++ mupdf-1.3-source/Makethird	2013-11-01 20:56:12.078675327 +0100
+@@ -43,7 +43,9 @@
+ 
+ V8_PRESENT := yes
+ else
+-V8_PRESENT := no
++ifneq "$(V8_PRESENT)" "no"
++V8_LIBS = -lv8 -lstdc++
++endif
+ endif
+ 
+ # --- FreeType 2 ---
