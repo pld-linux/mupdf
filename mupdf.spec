@@ -71,7 +71,8 @@ CFLAGS="%{rpmcflags} %{rpmcppflags}" \
 %{__make} \
 	CC="%{__cc}" \
 	V8_PRESENT=yes \
-	build=release
+	build=release \
+	verbose=1
 
 %install
 rm -rf $RPM_BUILD_ROOT
