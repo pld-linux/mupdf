@@ -55,7 +55,7 @@ Summary:	Header files for MuPDF libraries
 Summary(pl.UTF-8):	Pliki nagłówkowe bibliotek MuPDF
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	freetype2-devel >= 2
+Requires:	freetype-devel >= 2
 Requires:	jbig2dec-devel
 Requires:	libjpeg-devel
 Requires:	libstdc++-devel
