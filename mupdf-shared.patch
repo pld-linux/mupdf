@@ -1,0 +1,187 @@
+--- mupdf-1.3-source/Makefile.orig	2013-08-14 14:41:20.000000000 +0200
++++ mupdf-1.3-source/Makefile	2013-11-02 09:52:33.336720500 +0100
+@@ -44,17 +44,24 @@
+ ifeq "$(verbose)" ""
+ QUIET_AR = @ echo ' ' ' ' AR $@ ;
+ QUIET_CC = @ echo ' ' ' ' CC $@ ;
++QUIET_LTCC = @ echo ' ' ' ' LTCC $@ ;
+ QUIET_CXX = @ echo ' ' ' ' CXX $@ ;
++QUIET_LTCXX = @ echo ' ' ' ' LTCXX $@ ;
+ QUIET_GEN = @ echo ' ' ' ' GEN $@ ;
+ QUIET_LINK = @ echo ' ' ' ' LINK $@ ;
++QUIET_LTLINK = @ echo ' ' ' ' LTLINK $@ ;
+ QUIET_MKDIR = @ echo ' ' ' ' MKDIR $@ ;
+ QUIET_RM = @ echo ' ' ' ' RM $@ ;
+ endif
+ 
+ CC_CMD = $(QUIET_CC) $(CC) $(CFLAGS) -o $@ -c $<
++LTCC_CMD = $(QUIET_LTCC) libtool --mode=compile --tag=CC $(CC) $(CFLAGS) -o $@ -c $<
+ CXX_CMD = $(QUIET_CXX) $(CXX) $(CFLAGS) -o $@ -c $<
++LTCXX_CMD = $(QUIET_CXX) libtool --mode=compile --tag=CXX $(CXX) $(CFLAGS) -o $@ -c $<
+ AR_CMD = $(QUIET_AR) $(AR) cr $@ $^
+ LINK_CMD = $(QUIET_LINK) $(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
++LTLINK_CMD = $(QUIET_LINK) libtool --mode=link --tag=CC $(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
++LTLINKCXX_CMD = $(QUIET_LINK) libtool --mode=link --tag=CXX $(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
+ MKDIR_CMD = $(QUIET_MKDIR) mkdir -p $@
+ RM_CMD = $(QUIET_RM) rm -f $@
+ 
+@@ -86,35 +93,37 @@
+ CBZ_SRC_HDR := $(wildcard source/cbz/*.h)
+ IMG_SRC_HDR := $(wildcard source/img/*.h)
+ 
+-FITZ_OBJ := $(subst source/, $(OUT)/, $(addsuffix .o, $(basename $(FITZ_SRC))))
+-PDF_OBJ := $(subst source/, $(OUT)/, $(addsuffix .o, $(basename $(PDF_SRC))))
+-XPS_OBJ := $(subst source/, $(OUT)/, $(addsuffix .o, $(basename $(XPS_SRC))))
+-CBZ_OBJ := $(subst source/, $(OUT)/, $(addsuffix .o, $(basename $(CBZ_SRC))))
+-IMG_OBJ := $(subst source/, $(OUT)/, $(addsuffix .o, $(basename $(IMG_SRC))))
+-
+-PDF_JS_V8_OBJ := $(OUT)/pdf/js/pdf-js.o $(OUT)/pdf/js/pdf-jsimp-cpp.o $(OUT)/pdf/js/pdf-jsimp-v8.o
+-PDF_JS_NONE_OBJ := $(OUT)/pdf/js/pdf-js-none.o
+-
+-$(FITZ_OBJ) : $(FITZ_HDR) $(FITZ_SRC_HDR)
+-$(PDF_OBJ) : $(FITZ_HDR) $(PDF_HDR) $(PDF_SRC_HDR)
+-$(XPS_OBJ) : $(FITZ_HDR) $(XPS_HDR) $(XPS_SRC_HDR)
+-$(CBZ_OBJ) : $(FITZ_HDR) $(CBZ_HDR) $(CBZ_SRC_HDR)
+-$(IMG_OBJ) : $(FITZ_HDR) $(IMG_HDR) $(IMG_SRC_HDR)
++FITZ_LOBJ := $(subst source/, $(OUT)/, $(addsuffix .lo, $(basename $(FITZ_SRC))))
++PDF_LOBJ := $(subst source/, $(OUT)/, $(addsuffix .lo, $(basename $(PDF_SRC))))
++XPS_LOBJ := $(subst source/, $(OUT)/, $(addsuffix .lo, $(basename $(XPS_SRC))))
++CBZ_LOBJ := $(subst source/, $(OUT)/, $(addsuffix .lo, $(basename $(CBZ_SRC))))
++IMG_LOBJ := $(subst source/, $(OUT)/, $(addsuffix .lo, $(basename $(IMG_SRC))))
++
++PDF_JS_V8_LOBJ := $(OUT)/pdf/js/pdf-js.lo $(OUT)/pdf/js/pdf-jsimp-cpp.lo $(OUT)/pdf/js/pdf-jsimp-v8.lo
++PDF_JS_NONE_LOBJ := $(OUT)/pdf/js/pdf-js-none.lo
++
++$(FITZ_LOBJ) : $(FITZ_HDR) $(FITZ_SRC_HDR)
++$(PDF_LOBJ) : $(FITZ_HDR) $(PDF_HDR) $(PDF_SRC_HDR)
++$(XPS_LOBJ) : $(FITZ_HDR) $(XPS_HDR) $(XPS_SRC_HDR)
++$(CBZ_LOBJ) : $(FITZ_HDR) $(CBZ_HDR) $(CBZ_SRC_HDR)
++$(IMG_LOBJ) : $(FITZ_HDR) $(IMG_HDR) $(IMG_SRC_HDR)
+ 
+-$(PDF_JS_V8_OBJ) : $(FITZ_HDR) $(PDF_HDR) $(PDF_SRC_HDR)
+-$(PDF_JS_NONE_OBJ) :=  $(FITZ_HDR) $(PDF_HDR) $(PDF_SRC_HDR)
++$(PDF_JS_V8_LOBJ) : $(FITZ_HDR) $(PDF_HDR) $(PDF_SRC_HDR)
++$(PDF_JS_NONE_LOBJ) :=  $(FITZ_HDR) $(PDF_HDR) $(PDF_SRC_HDR)
+ 
+ # --- Library ---
+ 
+-MUPDF_LIB := $(OUT)/libmupdf.a
+-MUPDF_JS_NONE_LIB := $(OUT)/libmupdf-js-none.a
++MUPDF_LIB := $(OUT)/libmupdf.la
++MUPDF_JS_NONE_LIB := $(OUT)/libmupdf-js-none.la
+ 
+-$(MUPDF_LIB) : $(FITZ_OBJ) $(PDF_OBJ) $(XPS_OBJ) $(CBZ_OBJ) $(IMG_OBJ)
+-$(MUPDF_JS_NONE_LIB) : $(PDF_JS_NONE_OBJ)
++$(MUPDF_LIB) : $(FITZ_LOBJ) $(PDF_LOBJ) $(XPS_LOBJ) $(CBZ_LOBJ) $(IMG_LOBJ)
++$(MUPDF_JS_NONE_LIB) : $(PDF_JS_NONE_LOBJ) $(MUPDF_LIB)
+ 
+ ifeq "$(V8_PRESENT)" "yes"
+-MUPDF_JS_V8_LIB := $(OUT)/libmupdf-js-v8.a
+-$(MUPDF_JS_V8_LIB) : $(PDF_JS_V8_OBJ)
++MUPDF_JS_V8_LIB := $(OUT)/libmupdf-js-v8.la
++$(MUPDF_JS_V8_LIB) : $(PDF_JS_V8_LOBJ) $(MUPDF_LIB)
++$(MUPDF_JS_V8_LIB) :: LDLIBS += -lv8
++$(MUPDF_JS_V8_LIB) :: LTLINK_CMD = $(LTLINKCXX_CMD)
+ endif
+ 
+ INSTALL_LIBS := $(MUPDF_LIB) $(MUPDF_JS_NONE_LIB) $(MUPDF_JS_V8_LIB)
+@@ -124,10 +131,8 @@
+ $(ALL_DIR) $(OUT) $(GEN) :
+ 	$(MKDIR_CMD)
+ 
+-$(OUT)/%.a :
+-	$(RM_CMD)
+-	$(AR_CMD)
+-	$(RANLIB_CMD)
++$(OUT)/%.la :
++	$(LTLINK_CMD) -rpath $(libdir) $(LDLIBS)
+ 
+ $(OUT)/%: $(OUT)/%.o
+ 	$(LINK_CMD)
+@@ -138,6 +142,12 @@
+ $(OUT)/%.o : source/%.cpp | $(ALL_DIR)
+ 	$(CXX_CMD)
+ 
++$(OUT)/%.lo : source/%.c | $(ALL_DIR)
++	$(LTCC_CMD)
++
++$(OUT)/%.lo : source/%.cpp | $(ALL_DIR)
++	$(LTCXX_CMD)
++
+ $(OUT)/%.o : scripts/%.c | $(OUT)
+ 	$(CC_CMD)
+ 
+@@ -208,10 +219,10 @@
+ 
+ generate: $(CMAP_GEN) $(FONT_GEN) $(JAVASCRIPT_GEN) $(ADOBECA_GEN)
+ 
+-$(OUT)/pdf/pdf-cmap-table.o : $(CMAP_GEN)
+-$(OUT)/pdf/pdf-fontfile.o : $(FONT_GEN)
+-$(OUT)/pdf/pdf-pkcs7.o : $(ADOBECA_GEN)
+-$(OUT)/pdf/js/pdf-js.o : $(JAVASCRIPT_GEN)
++$(OUT)/pdf/pdf-cmap-table.lo : $(CMAP_GEN)
++$(OUT)/pdf/pdf-fontfile.lo : $(FONT_GEN)
++$(OUT)/pdf/pdf-pkcs7.lo : $(ADOBECA_GEN)
++$(OUT)/pdf/js/pdf-js.lo : $(JAVASCRIPT_GEN)
+ $(OUT)/cmapdump.o : source/pdf/pdf-cmap.c source/pdf/pdf-cmap-parse.c
+ 
+ # --- Tools and Apps ---
+@@ -219,31 +230,31 @@
+ MUDRAW := $(addprefix $(OUT)/, mudraw)
+ $(MUDRAW) : $(MUPDF_LIB) $(MUPDF_JS_NONE_LIB) $(THIRD_LIBS)
+ $(MUDRAW) : $(addprefix $(OUT)/tools/, mudraw.o)
+-	$(LINK_CMD)
++	$(LTLINK_CMD)
+ 
+ MUTOOL := $(addprefix $(OUT)/, mutool)
+ $(MUTOOL) : $(MUPDF_LIB) $(MUPDF_JS_NONE_LIB) $(THIRD_LIBS)
+ $(MUTOOL) : $(addprefix $(OUT)/tools/, mutool.o pdfclean.o pdfextract.o pdfinfo.o pdfposter.o pdfshow.o)
+-	$(LINK_CMD)
++	$(LTLINK_CMD)
+ 
+ ifeq "$(V8_PRESENT)" "yes"
+ MUJSTEST_V8 := $(OUT)/mujstest-v8
+ $(MUJSTEST_V8) : $(MUPDF_LIB) $(MUPDF_JS_V8_LIB) $(THIRD_LIBS)
+ $(MUJSTEST_V8) : $(addprefix $(OUT)/platform/x11/, jstest_main.o pdfapp.o)
+-	$(LINK_CMD) $(V8_LIBS)
++	$(LTLINK_CMD) $(V8_LIBS)
+ endif
+ 
+ ifeq "$(NOX11)" ""
+ MUVIEW_X11 := $(OUT)/mupdf-x11
+ $(MUVIEW_X11) : $(MUPDF_LIB) $(MUPDF_JS_NONE_LIB) $(THIRD_LIBS)
+ $(MUVIEW_X11) : $(addprefix $(OUT)/platform/x11/, x11_main.o x11_image.o pdfapp.o)
+-	$(LINK_CMD) $(X11_LIBS)
++	$(LTLINK_CMD) $(X11_LIBS)
+ 
+ ifeq "$(NOCURL)" ""
+ MUVIEW_X11_CURL := $(OUT)/mupdf-x11-curl
+ $(MUVIEW_X11_CURL) : $(MUPDF_LIB) $(MUPDF_JS_NONE_LIB) $(THIRD_LIBS) $(CURL_LIB)
+ $(MUVIEW_X11_CURL) : $(addprefix $(OUT)/platform/x11/curl/, x11_main.o x11_image.o pdfapp.o curl_stream.o)
+-	$(LINK_CMD) $(X11_LIBS) $(CURL_LIBS)
++	$(LTLINK_CMD) $(X11_LIBS) $(CURL_LIBS)
+ endif
+ endif
+ 
+@@ -252,7 +263,7 @@
+ MUVIEW_X11_V8 := $(OUT)/mupdf-x11-v8
+ $(MUVIEW_X11_V8) : $(MUPDF_LIB) $(MUPDF_JS_V8_LIB) $(THIRD_LIBS)
+ $(MUVIEW_X11_V8) : $(addprefix $(OUT)/platform/x11/, x11_main.o x11_image.o pdfapp.o)
+-	$(LINK_CMD) $(X11_LIBS) $(V8_LIBS)
++	$(LTLINK_CMD) $(X11_LIBS) $(V8_LIBS)
+ endif
+ endif
+ 
+@@ -294,10 +305,10 @@
+ 	install include/mupdf/pdf/*.h $(DESTDIR)$(incdir)/mupdf/pdf
+ 
+ 	install -d $(DESTDIR)$(libdir)
+-	install $(INSTALL_LIBS) $(DESTDIR)$(libdir)
++	libtool --mode=install install $(INSTALL_LIBS) $(DESTDIR)$(libdir)
+ 
+ 	install -d $(DESTDIR)$(bindir)
+-	install $(INSTALL_APPS) $(DESTDIR)$(bindir)
++	libtool --mode=install install $(INSTALL_APPS) $(DESTDIR)$(bindir)
+ 
+ 	install -d $(DESTDIR)$(mandir)/man1
+ 	install docs/man/*.1 $(DESTDIR)$(mandir)/man1
