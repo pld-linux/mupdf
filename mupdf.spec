@@ -2,7 +2,7 @@ Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering librar
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka oraz biblioteka renderująca PDF, XPS, CBZ
 Name:		mupdf
 Version:	1.3
-Release:	2
+Release:	3
 License:	AGPL v3+
 Group:		Applications/Text
 #Source0Download: http://code.google.com/p/mupdf/downloads/list?q=source
@@ -18,7 +18,7 @@ BuildRequires:	freetype-devel >= 2
 BuildRequires:	jbig2dec-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
-BuildRequires:	openjpeg2-devel >= 2
+BuildRequires:	openjpeg2-devel >= 2.1.0
 BuildRequires:	openssl-devel
 BuildRequires:	pkgconfig
 BuildRequires:	v8-devel
@@ -59,7 +59,7 @@ Requires:	freetype-devel >= 2
 Requires:	jbig2dec-devel
 Requires:	libjpeg-devel
 Requires:	libstdc++-devel
-Requires:	openjpeg2-devel >= 2
+Requires:	openjpeg2-devel >= 2.1.0
 Requires:	openssl-devel
 Requires:	v8-devel
 Requires:	zlib-devel
@@ -99,6 +99,7 @@ LDFLAGS="%{rpmldflags}" \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 	V8_PRESENT=yes \
+	SYS_OPENJPEG_CFLAGS="$(pkg-config --cflags libopenjp2)" \
 	build=release \
 	libdir=%{_libdir} \
 	verbose=1
