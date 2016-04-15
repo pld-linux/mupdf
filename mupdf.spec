@@ -5,21 +5,24 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka oraz biblioteka renderująca PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.6
+Version:	1.8
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 Source0:	http://www.mupdf.com/downloads/%{name}-%{version}-source.tar.gz
-# Source0-md5:	8d69db41ae9e0b6807b76bb6ed70dc2f
+# Source0-md5:	3205256d78d8524d67dd2a47c7a345fa
 Patch0:		%{name}-openjpeg.patch
 Patch1:		%{name}-shared.patch
+Patch2:		%{name}-mujs.patch
 URL:		http://www.mupdf.com/
+BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel
 BuildRequires:	freetype-devel >= 2
+BuildRequires:	glfw-devel
 BuildRequires:	jbig2dec-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
-%{!?with_v8:BuildRequires:	mujs-devel}
+%{!?with_v8:BuildRequires:	mujs-devel >= 0-0.20160302}
 BuildRequires:	openjpeg2-devel >= 2.1.0
 BuildRequires:	openssl-devel
 BuildRequires:	pkgconfig
@@ -29,9 +32,6 @@ BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel
 Requires:	%{name}-libs = %{version}-%{release}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-# needs symbols from one of libmupdf-js-*
-#define		skip_post_check_so	libmupdf.so.*
 
 %description
 MuPDF is a lightweight PDF, XPS and CBZ viewer and parser/rendering
@@ -89,9 +89,10 @@ Statyczne biblioteki MuPDF.
 %setup -q -n %{name}-%{version}-source
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 # use system libs instead
-%{__rm} -r thirdparty/{curl,freetype,jbig2dec,jpeg,mujs,openjpeg,zlib}
+%{__rm} -r thirdparty/{curl,freetype,glfw,jbig2dec,jpeg,mujs,openjpeg,zlib}
 
 %build
 CFLAGS="%{rpmcflags} %{rpmcppflags}" \
@@ -135,12 +136,10 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CHANGES CONTRIBUTORS README
-%attr(755,root,root) %{_bindir}/mudraw
 %attr(755,root,root) %{_bindir}/mujstest
 %attr(755,root,root) %{_bindir}/mupdf-x11
 %attr(755,root,root) %{_bindir}/mupdf-x11-curl
 %attr(755,root,root) %{_bindir}/mutool
-%{_mandir}/man1/mudraw.1*
 %{_mandir}/man1/mupdf.1*
 %{_mandir}/man1/mutool.1*
 
