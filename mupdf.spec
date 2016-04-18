@@ -97,7 +97,7 @@ Statyczne biblioteki MuPDF.
 %build
 CFLAGS="%{rpmcflags} %{rpmcppflags}" \
 LDFLAGS="%{rpmldflags}" \
-%{__make} \
+%{__make} -j1 \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 %if %{with v8}
