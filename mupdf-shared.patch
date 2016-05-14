@@ -1,6 +1,6 @@
---- mupdf-1.8-source/Makefile.orig	2015-11-10 17:19:51.000000000 +0100
-+++ mupdf-1.8-source/Makefile	2016-04-14 20:39:17.552708551 +0200
-@@ -44,17 +44,24 @@
+--- mupdf-1.9a-source/Makefile.orig	2016-04-21 13:14:32.000000000 +0200
++++ mupdf-1.9a-source/Makefile	2016-05-14 08:56:44.284541516 +0200
+@@ -41,17 +41,24 @@
  ifneq "$(verbose)" "yes"
  QUIET_AR = @ echo ' ' ' ' AR $@ ;
  QUIET_CC = @ echo ' ' ' ' CC $@ ;
@@ -25,7 +25,7 @@
  MKDIR_CMD = $(QUIET_MKDIR) mkdir -p $@
  RM_CMD = $(QUIET_RM) rm -f $@
  
-@@ -91,47 +98,47 @@
+@@ -89,25 +96,25 @@
  HTML_SRC_HDR := $(wildcard source/html/*.h)
  GPRF_SRC_HDR := $(wildcard source/gprf/*.h)
  
@@ -42,30 +42,9 @@
 +HTML_LOBJ := $(subst source/, $(OUT)/, $(addsuffix .lo, $(basename $(HTML_SRC))))
 +GPRF_LOBJ := $(subst source/, $(OUT)/, $(addsuffix .lo, $(basename $(GPRF_SRC))))
  
- # --- Choice of Javascript library ---
- 
  ifeq "$(HAVE_MUJS)" "yes"
 -PDF_OBJ += $(OUT)/pdf/js/pdf-js.o
--PDF_OBJ += $(OUT)/pdf/js/pdf-jsimp-mu.o
 +PDF_LOBJ += $(OUT)/pdf/js/pdf-js.lo
-+PDF_LOBJ += $(OUT)/pdf/js/pdf-jsimp-mu.lo
- THIRD_LIBS += $(MUJS_LIB)
- LIBS += $(MUJS_LIBS)
- CFLAGS += $(MUJS_CFLAGS)
- else ifeq "$(HAVE_JSCORE)" "yes"
--PDF_OBJ += $(OUT)/pdf/js/pdf-js.o
--PDF_OBJ += $(OUT)/pdf/js/pdf-jsimp-jscore.o
-+PDF_LOBJ += $(OUT)/pdf/js/pdf-js.lo
-+PDF_LOBJ += $(OUT)/pdf/js/pdf-jsimp-jscore.lo
- LIBS += $(JSCORE_LIBS)
- CFLAGS += $(JSCORE_CFLAGS)
- else ifeq "$(HAVE_V8)" "yes"
--PDF_OBJ += $(OUT)/pdf/js/pdf-js.o
--PDF_OBJ += $(OUT)/pdf/js/pdf-jsimp-cpp.o $(OUT)/pdf/js/pdf-jsimp-v8.o
-+PDF_LOBJ += $(OUT)/pdf/js/pdf-js.lo
-+PDF_LOBJ += $(OUT)/pdf/js/pdf-jsimp-cpp.lo $(OUT)/pdf/js/pdf-jsimp-v8.lo
- LIBS += $(V8_LIBS)
- CFLAGS += $(V8_CFLAGS)
  else
 -PDF_OBJ += $(OUT)/pdf/js/pdf-js-none.o
 +PDF_LOBJ += $(OUT)/pdf/js/pdf-js-none.lo
@@ -84,17 +63,46 @@
 +$(HTML_LOBJ) : $(FITZ_HDR) $(HTML_HDR) $(HTML_SRC_HDR)
 +$(GPRF_LOBJ) : $(FITZ_HDR) $(GPRF_HDR) $(GPRF_SRC_HDR)
  
+ # --- Generated embedded font files ---
+ 
+@@ -123,7 +130,7 @@
+ 
+ FONT_BIN := $(FONT_BIN_DROID) $(FONT_BIN_NOTO) $(FONT_BIN_URW) $(FONT_BIN_SIL)
+ FONT_GEN := $(FONT_GEN_DROID) $(FONT_GEN_NOTO) $(FONT_GEN_URW) $(FONT_GEN_SIL)
+-FONT_OBJ := $(subst $(GEN)/, $(OUT)/fonts/, $(addsuffix .o, $(basename $(FONT_GEN))))
++FONT_LOBJ := $(subst $(GEN)/, $(OUT)/fonts/, $(addsuffix .o, $(basename $(FONT_GEN))))
+ 
+ $(GEN)/%.c : resources/fonts/droid/%.ttc $(FONTDUMP)
+ 	$(QUIET_GEN) $(FONTDUMP) $@ $<
+@@ -134,33 +141,28 @@
+ $(GEN)/%.c : resources/fonts/sil/%.cff $(FONTDUMP)
+ 	$(QUIET_GEN) $(FONTDUMP) $@ $<
+ 
+-$(FONT_OBJ) : $(FONT_GEN)
++$(FONT_LOBJ) : $(FONT_GEN)
+ $(FONT_GEN_DROID) : $(FONT_BIN_DROID)
+ $(FONT_GEN_NOTO) : $(FONT_BIN_NOTO)
+ $(FONT_GEN_URW) : $(FONT_BIN_URW)
+ 
  # --- Library ---
  
--MUPDF_LIB := $(OUT)/libmupdf.a
-+MUPDF_LIB := $(OUT)/libmupdf.la
+-MUPDF_LIB = $(OUT)/libmupdf.a
+-THIRD_LIB = $(OUT)/libmupdfthird.a
++MUPDF_LIB = $(OUT)/libmupdf.la
  
--$(MUPDF_LIB) : $(FITZ_OBJ) $(PDF_OBJ) $(XPS_OBJ) $(CBZ_OBJ) $(HTML_OBJ) $(GPRF_OBJ)
-+$(MUPDF_LIB) : $(FITZ_LOBJ) $(PDF_LOBJ) $(XPS_LOBJ) $(CBZ_LOBJ) $(HTML_LOBJ) $(GPRF_LOBJ)
+-MUPDF_OBJ := $(FITZ_OBJ) $(FONT_OBJ) $(PDF_OBJ) $(XPS_OBJ) $(CBZ_OBJ) $(HTML_OBJ) $(GPRF_OBJ)
+-THIRD_OBJ := $(FREETYPE_OBJ) $(HARFBUZZ_OBJ) $(JBIG2DEC_OBJ) $(JPEG_OBJ) $(MUJS_OBJ) $(OPENJPEG_OBJ) $(ZLIB_OBJ)
++MUPDF_LOBJ := $(FITZ_LOBJ) $(FONT_LOBJ) $(PDF_LOBJ) $(XPS_LOBJ) $(CBZ_LOBJ) $(HTML_LOBJ) $(GPRF_LOBJ)
  
- INSTALL_LIBS := $(MUPDF_LIB)
+-$(MUPDF_LIB) : $(MUPDF_OBJ)
+-$(THIRD_LIB) : $(THIRD_OBJ)
++$(MUPDF_LIB) : $(MUPDF_LOBJ)
  
-@@ -140,10 +147,8 @@
+-INSTALL_LIBS := $(MUPDF_LIB) $(THIRD_LIB)
++INSTALL_LIBS := $(MUPDF_LIB)
+ 
+ # --- Rules ---
+ 
  $(ALL_DIR) $(OUT) $(GEN) :
  	$(MKDIR_CMD)
  
@@ -107,7 +115,7 @@
  
  $(OUT)/%: $(OUT)/%.o
  	$(LINK_CMD)
-@@ -154,6 +159,12 @@
+@@ -171,6 +173,12 @@
  $(OUT)/%.o : source/%.cpp | $(ALL_DIR)
  	$(CXX_CMD)
  
@@ -120,18 +128,16 @@
  $(OUT)/%.o : scripts/%.c | $(OUT)
  	$(CC_CMD)
  
-@@ -233,12 +244,12 @@
+@@ -240,57 +248,57 @@
  
  generate: $(CMAP_GEN) $(FONT_GEN) $(JAVASCRIPT_GEN) $(ADOBECA_GEN) $(NAME_GEN)
  
 -$(OUT)/pdf/pdf-cmap-table.o : $(CMAP_GEN)
--$(OUT)/pdf/pdf-fontfile.o : $(FONT_GEN)
 -$(OUT)/pdf/pdf-pkcs7.o : $(ADOBECA_GEN)
 -$(OUT)/pdf/js/pdf-js.o : $(JAVASCRIPT_GEN)
 -$(OUT)/pdf/pdf-object.o : source/pdf/pdf-name-table.h
 -$(OUT)/cmapdump.o : include/mupdf/pdf/cmap.h source/pdf/pdf-cmap.c source/pdf/pdf-cmap-parse.c source/pdf/pdf-name-table.h
 +$(OUT)/pdf/pdf-cmap-table.lo : $(CMAP_GEN)
-+$(OUT)/pdf/pdf-fontfile.lo : $(FONT_GEN)
 +$(OUT)/pdf/pdf-pkcs7.lo : $(ADOBECA_GEN)
 +$(OUT)/pdf/js/pdf-js.lo : $(JAVASCRIPT_GEN)
 +$(OUT)/pdf/pdf-object.lo : source/pdf/pdf-name-table.h
@@ -139,15 +145,18 @@
  
  # --- Tools and Apps ---
  
-@@ -247,19 +258,19 @@
+ MUTOOL := $(addprefix $(OUT)/, mutool)
+ MUTOOL_OBJ := $(addprefix $(OUT)/tools/, mutool.o mudraw.o murun.o pdfclean.o pdfcreate.o pdfextract.o pdfinfo.o pdfposter.o pdfshow.o pdfpages.o pdfmerge.o)
  $(MUTOOL_OBJ): $(FITZ_HDR) $(PDF_HDR)
- $(MUTOOL) : $(MUPDF_LIB) $(THIRD_LIBS)
+-$(MUTOOL) : $(MUPDF_LIB) $(THIRD_LIB)
++$(MUTOOL) : $(MUPDF_LIB)
  $(MUTOOL) : $(MUTOOL_OBJ)
 -	$(LINK_CMD)
 +	$(LTLINK_CMD)
  
  MJSGEN := $(OUT)/mjsgen
- $(MJSGEN) : $(MUPDF_LIB) $(THIRD_LIBS)
+-$(MJSGEN) : $(MUPDF_LIB) $(THIRD_LIB)
++$(MJSGEN) : $(MUPDF_LIB)
  $(MJSGEN) : $(addprefix $(OUT)/tools/, mjsgen.o)
 -	$(LINK_CMD)
 +	$(LTLINK_CMD)
@@ -155,62 +164,81 @@
  MUJSTEST := $(OUT)/mujstest
  MUJSTEST_OBJ := $(addprefix $(OUT)/platform/x11/, jstest_main.o pdfapp.o)
  $(MUJSTEST_OBJ) : $(FITZ_HDR) $(PDF_HDR)
- $(MUJSTEST) : $(MUPDF_LIB) $(THIRD_LIBS)
+-$(MUJSTEST) : $(MUPDF_LIB) $(THIRD_LIB)
++$(MUJSTEST) : $(MUPDF_LIB)
  $(MUJSTEST) : $(MUJSTEST_OBJ)
 -	$(LINK_CMD)
 +	$(LTLINK_CMD)
  
  ifeq "$(HAVE_X11)" "yes"
  MUVIEW_X11 := $(OUT)/mupdf-x11
-@@ -267,7 +278,7 @@
+ MUVIEW_X11_OBJ := $(addprefix $(OUT)/platform/x11/, x11_main.o x11_image.o pdfapp.o)
  $(MUVIEW_X11_OBJ) : $(FITZ_HDR) $(PDF_HDR)
- $(MUVIEW_X11) : $(MUPDF_LIB) $(THIRD_LIBS)
+-$(MUVIEW_X11) : $(MUPDF_LIB) $(THIRD_LIB)
++$(MUVIEW_X11) : $(MUPDF_LIB)
  $(MUVIEW_X11) : $(MUVIEW_X11_OBJ)
 -	$(LINK_CMD) $(X11_LIBS)
 +	$(LTLINK_CMD) $(X11_LIBS)
  
  ifeq "$(HAVE_GLFW)" "yes"
  MUVIEW_GLFW := $(OUT)/mupdf-gl
-@@ -275,7 +286,7 @@
+ MUVIEW_GLFW_OBJ := $(addprefix $(OUT)/platform/gl/, gl-font.o gl-input.o gl-main.o)
  $(MUVIEW_GLFW_OBJ) : $(FITZ_HDR) $(PDF_HDR) platform/gl/gl-app.h
- $(MUVIEW_GLFW) : $(MUPDF_LIB) $(THIRD_LIBS) $(GLFW_LIB)
+-$(MUVIEW_GLFW) : $(MUPDF_LIB) $(THIRD_LIB) $(GLFW_LIB)
++$(MUVIEW_GLFW) : $(MUPDF_LIB) $(GLFW_LIB)
  $(MUVIEW_GLFW) : $(MUVIEW_GLFW_OBJ)
 -	$(LINK_CMD) $(GLFW_LIBS)
 +	$(LTLINK_CMD) $(GLFW_LIBS)
  endif
  
  ifeq "$(HAVE_CURL)" "yes"
-@@ -284,7 +295,7 @@
+ MUVIEW_X11_CURL := $(OUT)/mupdf-x11-curl
+ MUVIEW_X11_CURL_OBJ := $(addprefix $(OUT)/platform/x11/curl/, x11_main.o x11_image.o pdfapp.o curl_stream.o)
  $(MUVIEW_X11_CURL_OBJ) : $(FITZ_HDR) $(PDF_HDR)
- $(MUVIEW_X11_CURL) : $(MUPDF_LIB) $(THIRD_LIBS) $(CURL_LIB)
+-$(MUVIEW_X11_CURL) : $(MUPDF_LIB) $(THIRD_LIB) $(CURL_LIB)
++$(MUVIEW_X11_CURL) : $(MUPDF_LIB) $(CURL_LIB)
  $(MUVIEW_X11_CURL) : $(MUVIEW_X11_CURL_OBJ)
 -	$(LINK_CMD) $(X11_LIBS) $(CURL_LIBS) $(SYS_CURL_DEPS)
 +	$(LTLINK_CMD) $(X11_LIBS) $(CURL_LIBS) $(SYS_CURL_DEPS)
  endif
  endif
  
-@@ -294,7 +305,7 @@
+@@ -298,9 +306,9 @@
+ MUVIEW_WIN32 := $(OUT)/mupdf
+ MUVIEW_WIN32_OBJ := $(addprefix $(OUT)/platform/x11/, win_main.o pdfapp.o win_res.o)
  $(MUVIEW_WIN32_OBJ) : $(FITZ_HDR) $(PDF_HDR)
- $(MUVIEW_WIN32) : $(MUPDF_LIB) $(THIRD_LIBS)
+-$(MUVIEW_WIN32) : $(MUPDF_LIB) $(THIRD_LIB)
++$(MUVIEW_WIN32) : $(MUPDF_LIB)
  $(MUVIEW_WIN32) : $(MUVIEW_WIN32_OBJ)
 -	$(LINK_CMD) $(WIN32_LIBS)
 +	$(LTLINK_CMD) $(WIN32_LIBS)
  endif
  
  MUVIEW := $(MUVIEW_X11) $(MUVIEW_WIN32) $(MUVIEW_GLFW)
-@@ -307,9 +318,9 @@
+@@ -312,10 +320,10 @@
+ 
  examples: $(OUT)/example $(OUT)/multi-threaded
  
- $(OUT)/example: docs/example.c $(MUPDF_LIB) $(THIRD_LIBS)
+-$(OUT)/example: docs/example.c $(MUPDF_LIB) $(THIRD_LIB)
 -	$(LINK_CMD) $(CFLAGS)
-+	$(LTLINK_CMD) $(CFLAGS)
- $(OUT)/multi-threaded: docs/multi-threaded.c $(MUPDF_LIB) $(THIRD_LIBS)
+-$(OUT)/multi-threaded: docs/multi-threaded.c $(MUPDF_LIB) $(THIRD_LIB)
 -	$(LINK_CMD) $(CFLAGS) -lpthread
++$(OUT)/example: docs/example.c $(MUPDF_LIB)
++	$(LTLINK_CMD) $(CFLAGS)
++$(OUT)/multi-threaded: docs/multi-threaded.c $(MUPDF_LIB)
 +	$(LTLINK_CMD) $(CFLAGS) -lpthread
  
  # --- Update version string header ---
  
-@@ -351,10 +362,10 @@
+@@ -343,7 +351,6 @@
+ mandir ?= $(prefix)/share/man
+ docdir ?= $(prefix)/share/doc/mupdf
+ 
+-third: $(THIRD_LIB)
+ extra: $(CURL_LIB) $(GLFW_LIB)
+ libs: $(INSTALL_LIBS)
+ apps: $(INSTALL_APPS)
+@@ -357,10 +364,10 @@
  	install include/mupdf/pdf/*.h $(DESTDIR)$(incdir)/mupdf/pdf
  
  	install -d $(DESTDIR)$(libdir)

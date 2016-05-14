@@ -1,19 +1,14 @@
-#
-# Conditional build:
-%bcond_with	v8	# use V8 JS engine instead of MuJS
-#
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka oraz biblioteka renderująca PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.8
+Version:	1.9a
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 Source0:	http://www.mupdf.com/downloads/%{name}-%{version}-source.tar.gz
-# Source0-md5:	3205256d78d8524d67dd2a47c7a345fa
+# Source0-md5:	658b90788a57d858dcb069cf326e11c3
 Patch0:		%{name}-openjpeg.patch
 Patch1:		%{name}-shared.patch
-Patch2:		%{name}-mujs.patch
 URL:		http://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel
@@ -22,11 +17,10 @@ BuildRequires:	glfw-devel
 BuildRequires:	jbig2dec-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
-%{!?with_v8:BuildRequires:	mujs-devel >= 0-0.20160302}
+BuildRequires:	mujs-devel >= 0-0.20160302
 BuildRequires:	openjpeg2-devel >= 2.1.0
 BuildRequires:	openssl-devel
 BuildRequires:	pkgconfig
-%{?with_v8:BuildRequires:	v8-devel}
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel
@@ -61,10 +55,9 @@ Requires:	freetype-devel >= 2
 Requires:	jbig2dec-devel
 Requires:	libjpeg-devel
 Requires:	libstdc++-devel
-%{!?with_v8:Requires:	mujs-devel}
+Requires:	mujs-devel
 Requires:	openjpeg2-devel >= 2.1.0
 Requires:	openssl-devel
-%{?with_v8:Requires:	v8-devel}
 Requires:	zlib-devel
 
 %description devel
@@ -89,7 +82,6 @@ Statyczne biblioteki MuPDF.
 %setup -q -n %{name}-%{version}-source
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
 
 # use system libs instead
 %{__rm} -r thirdparty/{curl,freetype,glfw,jbig2dec,jpeg,mujs,openjpeg,zlib}
@@ -100,15 +92,9 @@ LDFLAGS="%{rpmldflags}" \
 %{__make} -j1 \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
-%if %{with v8}
-	HAVE_V8=yes \
-	V8_CFLAGS= \
-	V8_LIBS="-lv8 -lstdc++" \
-%else
 	HAVE_MUJS=yes \
 	MUJS_CFLAGS= \
 	MUJS_LIBS="-lmujs" \
-%endif
 	SYS_OPENJPEG_CFLAGS="$(pkg-config --cflags libopenjp2)" \
 	build=release \
 	libdir=%{_libdir} \
@@ -119,7 +105,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
-	V8_PRESENT=yes \
+	HAVE_MUJS=yes \
 	build=release \
 	prefix=%{_prefix} \
 	libdir=%{_libdir}
