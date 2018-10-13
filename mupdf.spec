@@ -1,30 +1,36 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.13.0
-Release:	2
+Version:	1.14.0
+Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
-Source0:	http://www.mupdf.com/downloads/%{name}-%{version}-source.tar.gz
-# Source0-md5:	447bc5c3305efe9645e12fce759e0198
-URL:		http://www.mupdf.com/
+Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.gz
+# Source0-md5:	98adc2f430cc7900397ab50a478485c5
+URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
-BuildRequires:	curl-devel
-BuildRequires:	freetype-devel >= 2
-BuildRequires:	glfw-devel
-BuildRequires:	jbig2dec-devel
+BuildRequires:	curl-devel >= 7.51.0
+BuildRequires:	freetype-devel >= 1:2.9.1
+BuildRequires:	harfbuzz-devel >= 1.9.0
+BuildRequires:	jbig2dec-devel >= 0.14
 BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	mujs-devel >= 1.0.4
-BuildRequires:	openjpeg2-devel >= 2.1.0
-BuildRequires:	openssl-devel
+BuildRequires:	openjpeg2-devel >= 2.3.0
+BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	pkgconfig
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
-BuildRequires:	zlib-devel
-Obsoletes:	mpudf-devel < 1.13.0
-Obsoletes:	mpudf-libs < 1.13.0
-Obsoletes:	mpudf-static < 1.13.0
+BuildRequires:	zlib-devel >= 1.2.11
+Requires:	curl-libs-devel >= 7.51.0
+Requires:	freetype >= 1:2.9.1
+Requires:	harfbuzz >= 1.9.0
+Requires:	jbig2dec >= 0.14
+Requires:	openjpeg2 >= 2.3.0
+Requires:	zlib >= 1.2.11
+Obsoletes:	mupdf-devel < 1.13.0
+Obsoletes:	mupdf-libs < 1.13.0
+Obsoletes:	mupdf-static < 1.13.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -36,8 +42,19 @@ MuPDF to lekka przeglądarka pliki PDF, XPS i CBZ.
 %prep
 %setup -q -n %{name}-%{version}-source
 
-# use system libs instead
+# use system libs instead:
+# curl 7.51.0
+# freetype 2.9.1
+# harfbuzz 1.9.0 + git update (nothing crucial)
+# jbig2dec 0.14
+# libjpeg 9
+# mujs ?
+# openjpeg 2.3.0
+# zlib 1.2.11
 %{__rm} -r thirdparty/{curl,freetype,jbig2dec,libjpeg,mujs,openjpeg,zlib}
+# but keep:
+# freeglut - 3.0.0 + some additional keyboard and clipboard APIs
+# lcms2 - "art" fork with tread safety
 
 %build
 CFLAGS="%{rpmcflags} %{rpmcppflags}" \
@@ -45,10 +62,9 @@ LDFLAGS="%{rpmldflags}" \
 %{__make} -j1 \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
-	HAVE_MUJS=yes \
-	MUJS_CFLAGS= \
-	MUJS_LIBS="-lmujs" \
 	SYS_OPENJPEG_CFLAGS="$(pkg-config --cflags libopenjp2)" \
+	USE_SYSTEM_LIBS=yes \
+	USE_SYSTEM_MUJS=yes \
 	build=release \
 	libdir=%{_libdir} \
 	verbose=yes
@@ -58,7 +74,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
-	HAVE_MUJS=yes \
+	USE_SYSTEM_LIBS=yes \
+	USE_SYSTEM_MUJS=yes \
 	build=release \
 	prefix=%{_prefix} \
 	libdir=%{_libdir}
