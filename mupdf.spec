@@ -2,11 +2,12 @@ Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering librar
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
 Version:	1.14.0
-Release:	1
+Release:	2
 License:	AGPL v3+
 Group:		Applications/Text
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.gz
 # Source0-md5:	98adc2f430cc7900397ab50a478485c5
+Patch0:		%{name}-shared.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel >= 7.51.0
@@ -15,6 +16,7 @@ BuildRequires:	harfbuzz-devel >= 1.9.0
 BuildRequires:	jbig2dec-devel >= 0.14
 BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
+BuildRequires:	libtool
 BuildRequires:	mujs-devel >= 1.0.4
 BuildRequires:	openjpeg2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 1.1.0
@@ -28,9 +30,6 @@ Requires:	harfbuzz >= 1.9.0
 Requires:	jbig2dec >= 0.14
 Requires:	openjpeg2 >= 2.3.0
 Requires:	zlib >= 1.2.11
-Obsoletes:	mupdf-devel < 1.13.0
-Obsoletes:	mupdf-libs < 1.13.0
-Obsoletes:	mupdf-static < 1.13.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -39,8 +38,58 @@ MuPDF is a lightweight PDF, XPS and CBZ viewer.
 %description -l pl.UTF-8
 MuPDF to lekka przeglądarka pliki PDF, XPS i CBZ.
 
+%package libs
+Summary:	Shared MuPDF libraries
+Summary(pl.UTF-8):	Biblioteki współdzielone MuPDF
+Group:		Libraries
+Requires:	freetype >= 1:2.9.1
+Requires:	jbig2dec >= 0.14
+Requires:	mujs
+Requires:	openjpeg2
+Requires:	openssl >= 1.1.0
+Requires:	zlib >= 1.2.11
+
+%description libs
+Shared MuPDF libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki współdzielone MuPDF.
+
+%package devel
+Summary:	Header files for MuPDF libraries
+Summary(pl.UTF-8):	Pliki nagłówkowe bibliotek MuPDF
+Group:		Development/Libraries
+Requires:	%{name}-libs = %{version}-%{release}
+Requires:	freetype-devel >= 1:2.9.1
+Requires:	jbig2dec-devel >= 0.14
+Requires:	libjpeg-devel
+Requires:	libstdc++-devel
+Requires:	mujs-devel >= 1.0.4
+Requires:	openjpeg2-devel >= 2.3.0
+Requires:	openssl-devel >= 1.1.0
+Requires:	zlib-devel >= 1.2.11
+
+%description devel
+Header files for MuPDF libraries.
+
+%description devel -l pl.UTF-8
+Pliki nagłówkowe bibliotek MuPDF.
+
+%package static
+Summary:	Static MuPDF libraries
+Summary(pl.UTF-8):	Statyczne biblioteki MuPDF
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{version}-%{release}
+
+%description static
+Static MuPDF libraries.
+
+%description static -l pl.UTF-8
+Statyczne biblioteki MuPDF.
+
 %prep
 %setup -q -n %{name}-%{version}-source
+%patch0 -p1
 
 # use system libs instead:
 # curl 7.51.0
@@ -86,11 +135,34 @@ rm -rf $RPM_BUILD_ROOT
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
+
 %files
 %defattr(644,root,root,755)
-%doc CHANGES CONTRIBUTORS README
+%doc CHANGES CONTRIBUTORS README docs/{index,manual*,thirdparty}.html
 %attr(755,root,root) %{_bindir}/mupdf-gl
 %attr(755,root,root) %{_bindir}/mupdf-x11
 %attr(755,root,root) %{_bindir}/mutool
 %{_mandir}/man1/mupdf.1*
 %{_mandir}/man1/mutool.1*
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libmupdf.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libmupdf.so.0
+%attr(755,root,root) %{_libdir}/libmupdf-third.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libmupdf-third.so.0
+
+%files devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libmupdf.so
+%attr(755,root,root) %{_libdir}/libmupdf-third.so
+%{_libdir}/libmupdf.la
+%{_libdir}/libmupdf-third.la
+%{_includedir}/mupdf
+
+%files static
+%defattr(644,root,root,755)
+%{_libdir}/libmupdf.a
+%{_libdir}/libmupdf-third.a
