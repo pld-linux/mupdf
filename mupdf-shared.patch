@@ -1,5 +1,5 @@
---- mupdf-1.15.0-source/Makefile.orig	2019-05-06 13:53:09.000000000 +0200
-+++ mupdf-1.15.0-source/Makefile	2019-07-04 01:42:59.715191269 +0200
+--- mupdf-1.16.1-source/Makefile.orig	2019-08-02 16:49:26.000000000 +0200
++++ mupdf-1.16.1-source/Makefile	2019-08-03 16:42:46.407735805 +0200
 @@ -41,9 +41,12 @@
    QUIET_AR = @ echo "    AR $@" ;
    QUIET_RANLIB = @ echo "    RANLIB $@" ;
@@ -40,7 +40,7 @@
  $(OUT)/%.exe: %.c
  	$(LINK_CMD)
  
-@@ -90,13 +100,16 @@
+@@ -93,13 +103,16 @@
  	$(CC_CMD) -Wall $(THIRD_CFLAGS) $(GLUT_CFLAGS)
  
  ifeq ($(HAVE_OBJCOPY),yes)
@@ -59,7 +59,7 @@
  $(OUT)/platform/%.o : platform/%.c
  	$(CC_CMD) -Wall
  
-@@ -104,12 +117,13 @@
+@@ -107,12 +120,13 @@
  	$(WINDRES_CMD)
  
  .PRECIOUS : $(OUT)/%.o # Keep intermediates from chained rules
@@ -75,16 +75,16 @@
  
  MUPDF_SRC := $(sort $(wildcard source/fitz/*.c))
  MUPDF_SRC += $(sort $(wildcard source/pdf/*.c))
-@@ -119,7 +133,7 @@
+@@ -121,7 +135,7 @@
+ MUPDF_SRC += $(sort $(wildcard source/html/*.c))
  MUPDF_SRC += $(sort $(wildcard source/cbz/*.c))
- MUPDF_SRC += $(sort $(wildcard source/gprf/*.c))
  
 -MUPDF_OBJ := $(MUPDF_SRC:%.c=$(OUT)/%.o)
 +MUPDF_LOBJ := $(MUPDF_SRC:%.c=$(OUT)/%.lo)
  
  THREAD_SRC := source/helpers/mu-threads/mu-threads.c
  THREAD_OBJ := $(THREAD_SRC:%.c=$(OUT)/%.o)
-@@ -147,13 +161,13 @@
+@@ -149,13 +163,13 @@
  generated/%.ttc.c : %.ttc $(HEXDUMP_EXE) ; $(QUIET_GEN) $(MKTGTDIR) ; $(HEXDUMP_EXE) -s $@ $<
  
  ifeq ($(HAVE_OBJCOPY),yes)
@@ -100,7 +100,7 @@
  endif
  
  generate: $(FONT_GEN)
-@@ -187,17 +201,18 @@
+@@ -189,17 +203,18 @@
  
  # --- Library ---
  
@@ -124,7 +124,7 @@
  
  # --- Main tools and viewers ---
  
-@@ -211,13 +226,13 @@
+@@ -213,13 +228,13 @@
  MUTOOL_OBJ := $(MUTOOL_SRC:%.c=$(OUT)/%.o)
  MUTOOL_EXE := $(OUT)/mutool
  $(MUTOOL_EXE) : $(MUTOOL_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB) $(THREAD_LIB)
@@ -140,7 +140,7 @@
  TOOL_APPS += $(MURASTER_EXE)
  
  ifeq ($(HAVE_GLUT),yes)
-@@ -225,7 +240,7 @@
+@@ -227,7 +242,7 @@
    MUVIEW_GLUT_OBJ := $(MUVIEW_GLUT_SRC:%.c=$(OUT)/%.o)
    MUVIEW_GLUT_EXE := $(OUT)/mupdf-gl
    $(MUVIEW_GLUT_EXE) : $(MUVIEW_GLUT_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB) $(GLUT_LIB)
@@ -149,7 +149,7 @@
    VIEW_APPS += $(MUVIEW_GLUT_EXE)
  endif
  
-@@ -235,7 +250,7 @@
+@@ -237,7 +252,7 @@
    MUVIEW_X11_OBJ += $(OUT)/platform/x11/x11_main.o
    MUVIEW_X11_OBJ += $(OUT)/platform/x11/x11_image.o
    $(MUVIEW_X11_EXE) : $(MUVIEW_X11_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB)
@@ -158,7 +158,7 @@
    VIEW_APPS += $(MUVIEW_X11_EXE)
  endif
  
-@@ -245,7 +260,7 @@
+@@ -247,7 +262,7 @@
    MUVIEW_WIN32_OBJ += $(OUT)/platform/x11/win_main.o
    MUVIEW_WIN32_OBJ += $(OUT)/platform/x11/win_res.o
    $(MUVIEW_WIN32_EXE) : $(MUVIEW_WIN32_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB)
@@ -167,7 +167,16 @@
    VIEW_APPS += $(MUVIEW_WIN32_EXE)
  endif
  
-@@ -267,9 +282,9 @@
+@@ -261,7 +276,7 @@
+   MUVIEW_X11_CURL_OBJ += $(OUT)/platform/x11/curl/curl_stream.o
+   MUVIEW_X11_CURL_OBJ += $(OUT)/platform/x11/curl/prog_stream.o
+   $(MUVIEW_X11_CURL_EXE) : $(MUVIEW_X11_CURL_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB) $(CURL_LIB)
+-	$(LINK_CMD) $(THIRD_LIBS) $(X11_LIBS) $(LIBCRYPTO_LIBS) $(CURL_LIBS) $(PTHREAD_LIBS)
++	$(LTLINK_CMD) $(THIRD_LIBS) $(X11_LIBS) $(LIBCRYPTO_LIBS) $(CURL_LIBS) $(PTHREAD_LIBS)
+   VIEW_APPS += $(MUVIEW_X11_CURL_EXE)
+ endif
+ endif
+@@ -286,9 +301,9 @@
  # --- Examples ---
  
  $(OUT)/example: docs/examples/example.c $(MUPDF_LIB) $(THIRD_LIB)
@@ -179,7 +188,7 @@
  
  # --- Update version string header ---
  
-@@ -312,10 +327,10 @@
+@@ -331,10 +346,10 @@
  	install -m 644 include/mupdf/pdf/*.h $(DESTDIR)$(incdir)/mupdf/pdf
  
  	install -d $(DESTDIR)$(libdir)

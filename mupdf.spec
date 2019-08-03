@@ -1,15 +1,16 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.15.0
+Version:	1.16.1
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.gz
-# Source0-md5:	e9f1d47108e4e9151666c56ecad47fc9
+# Source0-md5:	fe6ef7a800d4283c6ca14b22e0e7f748
 Patch0:		%{name}-shared.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
+BuildRequires:	curl-devel >= 7.51.0
 BuildRequires:	freetype-devel >= 1:2.9.1
 BuildRequires:	harfbuzz-devel >= 1.9.0
 BuildRequires:	jbig2dec-devel >= 0.14
@@ -23,6 +24,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel >= 1.2.11
+Requires:	curl-libs >= 7.51.0
 Requires:	freetype >= 1:2.9.1
 Requires:	harfbuzz >= 1.9.0
 Requires:	jbig2dec >= 0.14
@@ -90,6 +92,7 @@ Statyczne biblioteki MuPDF.
 %patch0 -p1
 
 # use system libs instead:
+# curl 7.51.0
 # freetype 2.9.1
 # harfbuzz 1.9.0 + git update (nothing crucial)
 # jbig2dec 0.14
@@ -97,7 +100,7 @@ Statyczne biblioteki MuPDF.
 # mujs ?
 # openjpeg 2.3.0
 # zlib 1.2.11
-%{__rm} -r thirdparty/{freetype,jbig2dec,libjpeg,mujs,openjpeg,zlib}
+%{__rm} -r thirdparty/{curl,freetype,jbig2dec,libjpeg,mujs,openjpeg,zlib}
 # but keep:
 # freeglut - 3.0.0 + some additional keyboard and clipboard APIs
 # lcms2 - "art" fork with tread safety
@@ -140,6 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc CHANGES CONTRIBUTORS README docs/{index,manual*,thirdparty}.html
 %attr(755,root,root) %{_bindir}/mupdf-gl
 %attr(755,root,root) %{_bindir}/mupdf-x11
+%attr(755,root,root) %{_bindir}/mupdf-x11-curl
 %attr(755,root,root) %{_bindir}/muraster
 %attr(755,root,root) %{_bindir}/mutool
 %{_mandir}/man1/mupdf.1*
