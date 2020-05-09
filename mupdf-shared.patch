@@ -27,7 +27,7 @@
  LINK_CMD = $(QUIET_LINK) $(MKTGTDIR) ; $(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 +LTLINK_CMD = $(QUIET_LINK) $(MKTGTDIR) ; libtool --mode=link --tag=CC $(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 +LTLINKCXX_CMD = $(QUIET_LINK) $(MKTGTDIR) ; libtool --mode=link --tag=CXX $(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
- TAGS_CMD = $(QUIET_TAGS) ctags -R
+ TAGS_CMD = $(QUIET_TAGS) ctags -R --c-kinds=+p
  WINDRES_CMD = $(QUIET_WINDRES) $(MKTGTDIR) ; $(WINDRES) $< $@
  OBJCOPY_CMD = $(QUIET_OBJCOPY) $(MKTGTDIR) ; $(LD) -r -b binary -o $@ $<
 @@ -68,6 +75,9 @@
@@ -134,9 +134,9 @@
  
  MURASTER_OBJ := $(OUT)/source/tools/muraster.o
  MURASTER_EXE := $(OUT)/muraster
- $(MURASTER_EXE) : $(MURASTER_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(THREAD_LIB)
--	$(LINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS)
-+	$(LTLINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS)
+ $(MURASTER_EXE) : $(MURASTER_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB) $(THREAD_LIB)
+-	$(LINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS) $(LIBCRYPTO_LIBS)
++	$(LTLINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS) $(LIBCRYPTO_LIBS)
  TOOL_APPS += $(MURASTER_EXE)
  
  ifeq ($(HAVE_GLUT),yes)
@@ -282,12 +282,12 @@
  
 @@ -274,8 +274,8 @@
  
- THIRD_CFLAGS += $(LURATECH_CFLAGS) -DHAVE_LURATECH=1
+ THIRD_CFLAGS += $(LURATECH_CFLAGS) -DHAVE_LURATECH
  
 -$(OUT)/thirdparty/luratech/%.o: thirdparty/luratech/%.c
--	$(CC_CMD) -DLINUX $(LURATECH_CFLAGS) -Wno-tautological-compare -Wno-absolute-value
+-	$(CC_CMD) -DLINUX $(LURATECH_CFLAGS) -Wno-tautological-compare -Wno-absolute-value -Wno-sign-compare
 +$(OUT)/thirdparty/luratech/%.lo: thirdparty/luratech/%.c
-+	$(LTCC_CMD) -DLINUX $(LURATECH_CFLAGS) -Wno-tautological-compare -Wno-absolute-value
++	$(LTCC_CMD) -DLINUX $(LURATECH_CFLAGS) -Wno-tautological-compare -Wno-absolute-value -Wno-sign-compare
  
  else # HAVE_LURATECH
  
@@ -296,9 +296,9 @@
  THIRD_CFLAGS += -Ithirdparty/jbig2dec
  
 -$(OUT)/thirdparty/jbig2dec/%.o: thirdparty/jbig2dec/%.c
--	$(CC_CMD) -DHAVE_STDINT_H -DJBIG_EXTERNAL_MEMENTO_H=\"mupdf/memento.h\"
+-	$(CC_CMD) -DHAVE_STDINT_H -DJBIG_EXTERNAL_MEMENTO_H=\"mupdf/memento.h\" -Wno-sign-compare
 +$(OUT)/thirdparty/jbig2dec/%.lo: thirdparty/jbig2dec/%.c
-+	$(LTCC_CMD) -DHAVE_STDINT_H -DJBIG_EXTERNAL_MEMENTO_H=\"mupdf/memento.h\"
++	$(LTCC_CMD) -DHAVE_STDINT_H -DJBIG_EXTERNAL_MEMENTO_H=\"mupdf/memento.h\" -Wno-sign-compare
  
  endif
  
