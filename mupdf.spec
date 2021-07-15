@@ -1,23 +1,23 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.17.0
-Release:	2
+Version:	1.18.0
+Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.gz
-# Source0-md5:	f6ffcd81fcd4c57016eb630bcd617c50
-Patch0:		%{name}-shared.patch
+# Source0-md5:	6f42be1365350f05270f8776517a3872
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel >= 7.66.0
 BuildRequires:	freetype-devel >= 1:2.10.0
-BuildRequires:	harfbuzz-devel >= 2.6.4
+BuildRequires:	gumbo-parser-devel >= 0.10.1
+BuildRequires:	harfbuzz-devel >= 2.8.0
 BuildRequires:	jbig2dec-devel >= 0.18
 BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libtool
-BuildRequires:	mujs-devel >= 1.0.6
+BuildRequires:	mujs-devel >= 1.0.9
 BuildRequires:	openjpeg2-devel >= 2.3.1
 BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	pkgconfig
@@ -26,7 +26,8 @@ BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel >= 1.2.11
 Requires:	curl-libs >= 7.66.0
 Requires:	freetype >= 1:2.10.0
-Requires:	harfbuzz >= 2.6.4
+Requires:	gumbo-parser >= 0.10.1
+Requires:	harfbuzz >= 2.8.0
 Requires:	jbig2dec >= 0.18
 Requires:	openjpeg2 >= 2.3.1
 Requires:	zlib >= 1.2.11
@@ -44,7 +45,7 @@ Summary(pl.UTF-8):	Biblioteki współdzielone MuPDF
 Group:		Libraries
 Requires:	freetype >= 1:2.10.0
 Requires:	jbig2dec >= 0.18
-Requires:	mujs >= 1.0.6
+Requires:	mujs >= 1.0.9
 Requires:	openjpeg2
 Requires:	openssl >= 1.1.0
 Requires:	zlib >= 1.2.11
@@ -64,7 +65,7 @@ Requires:	freetype-devel >= 1:2.10.0
 Requires:	jbig2dec-devel >= 0.18
 Requires:	libjpeg-devel
 Requires:	libstdc++-devel
-Requires:	mujs-devel >= 1.0.6
+Requires:	mujs-devel >= 1.0.9
 Requires:	openjpeg2-devel >= 2.3.1
 Requires:	openssl-devel >= 1.1.0
 Requires:	zlib-devel >= 1.2.11
@@ -89,7 +90,6 @@ Statyczne biblioteki MuPDF.
 
 %prep
 %setup -q -n %{name}-%{version}-source
-%patch0 -p1
 
 # use system libs instead:
 # curl 7.66.0
@@ -100,7 +100,7 @@ Statyczne biblioteki MuPDF.
 # mujs ?
 # openjpeg 2.3.1
 # zlib 1.2.11
-%{__rm} -r thirdparty/{curl,freetype,harfbuzz,jbig2dec,libjpeg,mujs,openjpeg,zlib}
+%{__rm} -r thirdparty/{curl,freetype,gumbo-parser,harfbuzz,jbig2dec,libjpeg,mujs,openjpeg,zlib}
 # but keep:
 # freeglut - 3.0.0 + some additional keyboard and clipboard APIs
 # lcms2 - "art" fork with tread safety
@@ -118,6 +118,17 @@ LDFLAGS="%{rpmldflags}" \
 	libdir=%{_libdir} \
 	verbose=yes
 
+%{__make} -j1 \
+	CC="%{__cc}" \
+	CXX="%{__cxx}" \
+	SYS_OPENJPEG_CFLAGS="$(pkg-config --cflags libopenjp2)" \
+	USE_SYSTEM_LIBS=yes \
+	USE_SYSTEM_MUJS=yes \
+	build=release \
+	shared=yes \
+	libdir=%{_libdir} \
+	verbose=yes
+
 %install
 rm -rf $RPM_BUILD_ROOT
 
@@ -126,6 +137,15 @@ rm -rf $RPM_BUILD_ROOT
 	USE_SYSTEM_LIBS=yes \
 	USE_SYSTEM_MUJS=yes \
 	build=release \
+	prefix=%{_prefix} \
+	libdir=%{_libdir}
+
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT \
+	USE_SYSTEM_LIBS=yes \
+	USE_SYSTEM_MUJS=yes \
+	build=release \
+	shared=yes \
 	prefix=%{_prefix} \
 	libdir=%{_libdir}
 
@@ -151,17 +171,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libmupdf.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libmupdf.so.0
-%attr(755,root,root) %{_libdir}/libmupdf-third.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libmupdf-third.so.0
+%attr(755,root,root) %{_libdir}/libmupdf.so
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libmupdf.so
-%attr(755,root,root) %{_libdir}/libmupdf-third.so
-%{_libdir}/libmupdf.la
-%{_libdir}/libmupdf-third.la
 %{_includedir}/mupdf
 
 %files static
