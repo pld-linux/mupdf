@@ -1,0 +1,11 @@
+--- mupdf-1.18.0-source/Makefile.orig	2020-10-07 12:35:03.000000000 +0200
++++ mupdf-1.18.0-source/Makefile	2021-07-17 07:21:34.738610164 +0200
+@@ -76,7 +76,7 @@
+ 	$(LINK_CMD)
+ 
+ $(OUT)/%.$(SO):
+-	$(LINK_CMD) $(LIB_LDFLAGS) $(THIRD_LIBS) $(LIBCRYPTO_LIBS)
++	$(LINK_CMD) $(LIB_LDFLAGS) $(THIRD_LIBS) $(LIBCRYPTO_LIBS) -Wl,-soname,$(shell basename $@)
+ 
+ $(OUT)/source/helpers/mu-threads/%.o : source/helpers/mu-threads/%.c
+ 	$(CC_CMD) $(LIB_CFLAGS) $(THREADING_CFLAGS)

@@ -7,6 +7,7 @@ License:	AGPL v3+
 Group:		Applications/Text
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.gz
 # Source0-md5:	6f42be1365350f05270f8776517a3872
+Patch0:		%{name}-soname.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel >= 7.66.0
@@ -90,10 +91,12 @@ Statyczne biblioteki MuPDF.
 
 %prep
 %setup -q -n %{name}-%{version}-source
+%patch0 -p1
 
 # use system libs instead:
 # curl 7.66.0
 # freetype 2.10.0
+# gumbo-parser 0.10.1
 # harfbuzz 2.6.4 + git update (nothing crucial)
 # jbig2dec 0.18
 # libjpeg 9
@@ -118,6 +121,8 @@ LDFLAGS="%{rpmldflags}" \
 	libdir=%{_libdir} \
 	verbose=yes
 
+CFLAGS="%{rpmcflags} %{rpmcppflags}" \
+LDFLAGS="%{rpmldflags}" \
 %{__make} -j1 \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
