@@ -1,0 +1,13 @@
+--- mupdf-1.18.0-source/Makerules.orig	2020-10-07 12:35:03.000000000 +0200
++++ mupdf-1.18.0-source/Makerules	2021-07-18 20:55:06.667136139 +0200
+@@ -40,8 +40,8 @@
+   CFLAGS += -pipe -g
+   LDFLAGS += -g
+ else ifeq ($(build),release)
+-  CFLAGS += -pipe -O2 -DNDEBUG -fomit-frame-pointer
+-  LDFLAGS += $(LDREMOVEUNREACH) -Wl,-s
++  CFLAGS += -DNDEBUG
++  LDFLAGS += $(LDREMOVEUNREACH)
+ else ifeq ($(build),small)
+   CFLAGS += -pipe -Os -DNDEBUG -fomit-frame-pointer
+   LDFLAGS += $(LDREMOVEUNREACH) -Wl,-s
