@@ -7,5 +7,5 @@
 -	$(LINK_CMD) $(LIB_LDFLAGS) $(THIRD_LIBS) $(LIBCRYPTO_LIBS)
 +	$(LINK_CMD) $(LIB_LDFLAGS) $(THIRD_LIBS) $(LIBCRYPTO_LIBS) -Wl,-soname,$(shell basename $@)
  
- $(OUT)/source/helpers/mu-threads/%.o : source/helpers/mu-threads/%.c
- 	$(CC_CMD) $(LIB_CFLAGS) $(THREADING_CFLAGS)
+ $(OUT)/%.def: $(OUT)/%.$(SO)
+ 	$(GENDEF_CMD)
