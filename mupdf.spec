@@ -1,38 +1,38 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.19.1
+Version:	1.21.0
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.gz
-# Source0-md5:	0800cb568feb95500e0866d9f80e450a
+# Source0-md5:	dc32d02c50810cd5e9043c5aa5cd2616
 Patch0:		%{name}-soname.patch
 Patch1:		%{name}-flags.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel >= 7.66.0
-BuildRequires:	freetype-devel >= 1:2.10.0
+BuildRequires:	freetype-devel >= 1:2.12.1
 BuildRequires:	gumbo-parser-devel >= 0.10.1
-BuildRequires:	harfbuzz-devel >= 2.8.0
+BuildRequires:	harfbuzz-devel >= 5.3.0
 BuildRequires:	jbig2dec-devel >= 0.18
 BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libtool
-BuildRequires:	mujs-devel >= 1.0.9
-BuildRequires:	openjpeg2-devel >= 2.3.1
+BuildRequires:	mujs-devel >= 1.3.1
+BuildRequires:	openjpeg2-devel >= 2.5.0
 BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	pkgconfig
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
-BuildRequires:	zlib-devel >= 1.2.11
+BuildRequires:	zlib-devel >= 1.2.13
 Requires:	curl-libs >= 7.66.0
-Requires:	freetype >= 1:2.10.0
+Requires:	freetype >= 1:2.12.1
 Requires:	gumbo-parser >= 0.10.1
-Requires:	harfbuzz >= 2.8.0
+Requires:	harfbuzz >= 5.3.0
 Requires:	jbig2dec >= 0.18
-Requires:	openjpeg2 >= 2.3.1
-Requires:	zlib >= 1.2.11
+Requires:	openjpeg2 >= 2.5.0
+Requires:	zlib >= 1.2.13
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -45,12 +45,12 @@ MuPDF to lekka przeglądarka pliki PDF, XPS i CBZ.
 Summary:	Shared MuPDF libraries
 Summary(pl.UTF-8):	Biblioteki współdzielone MuPDF
 Group:		Libraries
-Requires:	freetype >= 1:2.10.0
+Requires:	freetype >= 1:2.12.1
 Requires:	jbig2dec >= 0.18
-Requires:	mujs >= 1.0.9
+Requires:	mujs >= 1.3.1
 Requires:	openjpeg2
 Requires:	openssl >= 1.1.0
-Requires:	zlib >= 1.2.11
+Requires:	zlib >= 1.2.13
 
 %description libs
 Shared MuPDF libraries.
@@ -63,14 +63,14 @@ Summary:	Header files for MuPDF libraries
 Summary(pl.UTF-8):	Pliki nagłówkowe bibliotek MuPDF
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	freetype-devel >= 1:2.10.0
+Requires:	freetype-devel >= 1:2.12.1
 Requires:	jbig2dec-devel >= 0.18
 Requires:	libjpeg-devel
 Requires:	libstdc++-devel
-Requires:	mujs-devel >= 1.0.9
-Requires:	openjpeg2-devel >= 2.3.1
+Requires:	mujs-devel >= 1.3.1
+Requires:	openjpeg2-devel >= 2.5.0
 Requires:	openssl-devel >= 1.1.0
-Requires:	zlib-devel >= 1.2.11
+Requires:	zlib-devel >= 1.2.13
 
 %description devel
 Header files for MuPDF libraries.
@@ -97,14 +97,14 @@ Statyczne biblioteki MuPDF.
 
 # use system libs instead:
 # curl 7.66.0
-# freetype 2.10.0
+# freetype 2.12.1
 # gumbo-parser 0.10.1
-# harfbuzz 2.6.4 + git update (nothing crucial)
+# harfbuzz 5.3.0
 # jbig2dec 0.18
 # libjpeg 9
-# mujs ?
-# openjpeg 2.3.1
-# zlib 1.2.11
+# mujs 1.3.1
+# openjpeg 2.5.0
+# zlib 1.2.13
 %{__rm} -r thirdparty/{curl,freetype,gumbo-parser,harfbuzz,jbig2dec,libjpeg,mujs,openjpeg,zlib}
 # but keep:
 # freeglut - 3.0.0 + some additional keyboard and clipboard APIs
