@@ -26,6 +26,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel >= 1.2.13
+Requires:	%{name}-libs = %{version}-%{release}
 Requires:	curl-libs >= 7.66.0
 Requires:	freetype >= 1:2.12.1
 Requires:	gumbo-parser >= 0.10.1
