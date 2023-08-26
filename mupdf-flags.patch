@@ -4,10 +4,10 @@
    CFLAGS += -pipe -g
    LDFLAGS += -g
  else ifeq ($(build),release)
--  CFLAGS += -pipe -O2 -DNDEBUG -fomit-frame-pointer
+-  CFLAGS += -pipe -O2 -DNDEBUG
 -  LDFLAGS += $(LDREMOVEUNREACH) -Wl,-s
 +  CFLAGS += -DNDEBUG
 +  LDFLAGS += $(LDREMOVEUNREACH)
  else ifeq ($(build),small)
-   CFLAGS += -pipe -Os -DNDEBUG -fomit-frame-pointer
+   CFLAGS += -pipe -Os -DNDEBUG
    LDFLAGS += $(LDREMOVEUNREACH) -Wl,-s

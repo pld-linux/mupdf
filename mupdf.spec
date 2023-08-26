@@ -1,12 +1,12 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.22.2
+Version:	1.23.0
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.gz
-# Source0-md5:	d37d404e28bdd8f43601d3bc20603d38
+# Source0-md5:	2d24237298fb5e28d0e1e65d0cb9591a
 Patch0:		%{name}-soname.patch
 Patch1:		%{name}-flags.patch
 URL:		https://www.mupdf.com/
@@ -23,6 +23,9 @@ BuildRequires:	mujs-devel >= 1.3.3
 BuildRequires:	openjpeg2-devel >= 2.5.0
 BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	pkgconfig
+BuildRequires:	python3-furo
+BuildRequires:	python3-rst2pdf
+BuildRequires:	sphinx-pdg
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel >= 1.2.13
@@ -137,6 +140,8 @@ LDFLAGS="%{rpmldflags}" \
 	libdir=%{_libdir} \
 	verbose=yes
 
+sphinx-build -M html docs/src build/docs
+
 %install
 rm -rf $RPM_BUILD_ROOT
 
@@ -168,7 +173,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CHANGES CONTRIBUTORS README docs/{index,manual*,thirdparty}.html
+%doc CHANGES CONTRIBUTORS README build/docs/html/{_images,_static,*.html,*.js}
 %attr(755,root,root) %{_bindir}/mupdf-gl
 %attr(755,root,root) %{_bindir}/mupdf-x11
 %attr(755,root,root) %{_bindir}/mupdf-x11-curl
