@@ -1,3 +1,7 @@
+#
+# Conditional build:
+%bcond_without	static_libs	# static library
+
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
@@ -117,6 +121,7 @@ Statyczne biblioteki MuPDF.
 # lcms2 - "art" fork with tread safety
 
 %build
+%if %{with static_libs}
 CFLAGS="%{rpmcflags} %{rpmcppflags}" \
 LDFLAGS="%{rpmldflags}" \
 %{__make} -j1 \
@@ -128,6 +133,7 @@ LDFLAGS="%{rpmldflags}" \
 	build=release \
 	libdir=%{_libdir} \
 	verbose=yes
+%endif
 
 CFLAGS="%{rpmcflags} %{rpmcppflags}" \
 LDFLAGS="%{rpmldflags}" \
@@ -147,6 +153,7 @@ sphinx-build -M html docs/src build/docs
 %install
 rm -rf $RPM_BUILD_ROOT
 
+%if %{with static_libs}
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	USE_SYSTEM_LIBS=yes \
@@ -154,6 +161,7 @@ rm -rf $RPM_BUILD_ROOT
 	build=release \
 	prefix=%{_prefix} \
 	libdir=%{_libdir}
+%endif
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -192,7 +200,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_includedir}/mupdf
 
+%if %{with static_libs}
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libmupdf.a
 %{_libdir}/libmupdf-third.a
+%endif
