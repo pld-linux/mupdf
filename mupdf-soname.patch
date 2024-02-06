@@ -3,9 +3,9 @@
 @@ -76,7 +76,7 @@
  	$(LINK_CMD)
  
- $(OUT)/%.$(SO):
+ $(OUT)/%.$(SO)$(SO_VERSION):
 -	$(LINK_CMD) $(LIB_LDFLAGS) $(THIRD_LIBS) $(LIBCRYPTO_LIBS)
 +	$(LINK_CMD) $(LIB_LDFLAGS) $(THIRD_LIBS) $(LIBCRYPTO_LIBS) -Wl,-soname,$(shell basename $@)
- 
- $(OUT)/%.def: $(OUT)/%.$(SO)
- 	$(GENDEF_CMD)
+ ifneq ($(SO_VERSION),)
+ 	ln -sf $(notdir $@) $(patsubst %$(SO_VERSION), %, $@)
+ endif
