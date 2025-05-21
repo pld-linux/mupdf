@@ -105,7 +105,7 @@ Statyczne biblioteki MuPDF.
 
 %prep
 %setup -q -n %{name}-%{version}-source
-%patch0 -p1
+%patch -P0 -p1
 
 # use system libs instead:
 # curl 7.66.0
