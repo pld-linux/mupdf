@@ -1,0 +1,11 @@
+--- mupdf-1.26.1-source/Makefile.orig	2025-05-19 17:38:05.000000000 +0200
++++ mupdf-1.26.1-source/Makefile	2025-05-22 21:08:20.607121051 +0200
+@@ -292,7 +292,7 @@
+ 
+ ifeq ($(shared),yes)
+   $(OUT)/libmupdf.$(SO)$(SO_VERSION): $(MUPDF_OBJ) $(THIRD_OBJ)
+-	$(LINK_SO_CMD) $(THIRD_LIBS) $(LIBCRYPTO_LIBS)
++	$(LINK_SO_CMD) $(THIRD_LIBS) $(LIBCRYPTO_LIBS) $(LIBS)
+   ifeq ($(OS),OpenBSD)
+     # should never create symlink
+     MUPDF_LIB = $(OUT)/libmupdf.$(SO)$(SO_VERSION)

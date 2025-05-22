@@ -2,18 +2,20 @@
 # Conditional build:
 %bcond_without	static_libs	# static library
 %bcond_without	tesseract	# OCR support via Tesseract
+%bcond_without	barcode		# barcode support using zxing-cpp
 
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.25.1
+Version:	1.26.1
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 #Source0Download: https://www.mupdf.com/releases
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.lz
-# Source0-md5:	82a91e8803f58d56cbc48b4360e2e4fc
+# Source0-md5:	8657714f4e599a9c576cb9a9df884c2a
 Patch0:		%{name}-flags.patch
+Patch1:		link.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel >= 7.66.0
@@ -32,14 +34,17 @@ BuildRequires:	pkgconfig
 BuildRequires:	python3-furo
 BuildRequires:	python3-rst2pdf
 BuildRequires:	python3-sphinx_copybutton
+BuildRequires:	python3-sphinxcontrib-googleanalytics
 BuildRequires:	sphinx-pdg
 BuildRequires:	tar >= 1:1.22
 %{?with_tesseract:BuildRequires:	tesseract-devel >= 5.3.4}
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel >= 1.2.13
+%{?with_barcode:BuildRequires:	zxing-cpp-nu-devel >= 2.3.0-2}
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	curl-libs >= 7.66.0
+%{?with_barcode:Requires:	zxing-cpp-nu >= 2.3.0-2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -62,6 +67,7 @@ Requires:	openjpeg2 >= 2.5.0
 Requires:	openssl >= 1.1.0
 %{?with_tesseract:Requires:	tesseract >= 5.3.4}
 Requires:	zlib >= 1.2.13
+%{?with_barcode:Requires:	zxing-cpp-nu >= 2.3.0-2}
 
 %description libs
 Shared MuPDF libraries.
@@ -106,6 +112,7 @@ Statyczne biblioteki MuPDF.
 %prep
 %setup -q -n %{name}-%{version}-source
 %patch -P0 -p1
+%patch -P1 -p1
 
 # use system libs instead:
 # curl 7.66.0
@@ -119,7 +126,8 @@ Statyczne biblioteki MuPDF.
 # openjpeg 2.4.0
 # tesseract 5.3.4
 # zlib 1.2.13
-%{__rm} -r thirdparty/{curl,freetype,gumbo-parser,harfbuzz,jbig2dec,leptonica,libjpeg,mujs,openjpeg,tesseract,zlib}
+# zxing-cpp 2.3.0
+%{__rm} -r thirdparty/{curl,freetype,gumbo-parser,harfbuzz,jbig2dec,leptonica,libjpeg,mujs,openjpeg,tesseract,zlib,zxing-cpp}
 # but keep:
 # extract - ?, system library not supported
 # freeglut - 3.0.0 + some additional keyboard and clipboard APIs
@@ -127,25 +135,26 @@ Statyczne biblioteki MuPDF.
 
 %build
 %if %{with static_libs}
-CFLAGS="%{rpmcflags} %{rpmcppflags}" \
-LDFLAGS="%{rpmldflags}" \
 %{__make} -j1 \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
+	XCFLAGS="%{rpmcflags} %{rpmcppflags}" \
+	XLDFLAGS="%{rpmldflags}" \
 	SYS_OPENJPEG_CFLAGS="$(pkg-config --cflags libopenjp2)" \
 	USE_SYSTEM_LIBS=yes \
 	USE_SYSTEM_MUJS=yes \
 	build=release \
 	libdir=%{_libdir} \
 	%{?with_tesseract:tesseract=yes} \
+	%{?with_barcode:barcode=yes} \
 	verbose=yes
 %endif
 
-CFLAGS="%{rpmcflags} %{rpmcppflags}" \
-LDFLAGS="%{rpmldflags}" \
-%{__make} -j1 \
+%{__make} -j1 all \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
+	XCFLAGS="%{rpmcflags} %{rpmcppflags}" \
+	XLDFLAGS="%{rpmldflags}" \
 	SYS_OPENJPEG_CFLAGS="$(pkg-config --cflags libopenjp2)" \
 	USE_SYSTEM_LIBS=yes \
 	USE_SYSTEM_MUJS=yes \
@@ -153,6 +162,7 @@ LDFLAGS="%{rpmldflags}" \
 	libdir=%{_libdir} \
 	shared=yes \
 	%{?with_tesseract:tesseract=yes} \
+	%{?with_barcode:barcode=yes} \
 	verbose=yes
 
 sphinx-build -M html docs/src build/docs
@@ -168,10 +178,11 @@ rm -rf $RPM_BUILD_ROOT
 	build=release \
 	prefix=%{_prefix} \
 	libdir=%{_libdir} \
-	%{?with_tesseract:tesseract=yes}
+	%{?with_tesseract:tesseract=yes} \
+	%{?with_barcode:barcode=yes}
 %endif
 
-%{__make} install \
+%{__make} install install-extra-apps \
 	DESTDIR=$RPM_BUILD_ROOT \
 	USE_SYSTEM_LIBS=yes \
 	USE_SYSTEM_MUJS=yes \
@@ -179,7 +190,8 @@ rm -rf $RPM_BUILD_ROOT
 	prefix=%{_prefix} \
 	libdir=%{_libdir} \
 	shared=yes \
-	%{?with_tesseract:tesseract=yes}
+	%{?with_tesseract:tesseract=yes} \
+	%{?with_barcode:barcode=yes}
 
 # missing in make install
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/libmupdf.so.*.*
