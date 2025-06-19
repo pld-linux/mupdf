@@ -7,15 +7,14 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.26.1
+Version:	1.26.2
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 #Source0Download: https://www.mupdf.com/releases
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.lz
-# Source0-md5:	8657714f4e599a9c576cb9a9df884c2a
+# Source0-md5:	3e87fea17e09878a692f759af19a9dad
 Patch0:		%{name}-flags.patch
-Patch1:		link.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel >= 7.66.0
@@ -32,9 +31,11 @@ BuildRequires:	openjpeg2-devel >= 2.5.0
 BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	pkgconfig
 BuildRequires:	python3-furo
+BuildRequires:	python3-linkify-it-py
+BuildRequires:	python3-myst_parser
 BuildRequires:	python3-rst2pdf
-BuildRequires:	python3-sphinx_copybutton
 BuildRequires:	python3-sphinxcontrib-googleanalytics
+BuildRequires:	python3-sphinxcontrib-imagesvg
 BuildRequires:	sphinx-pdg
 BuildRequires:	tar >= 1:1.22
 %{?with_tesseract:BuildRequires:	tesseract-devel >= 5.3.4}
@@ -112,7 +113,6 @@ Statyczne biblioteki MuPDF.
 %prep
 %setup -q -n %{name}-%{version}-source
 %patch -P0 -p1
-%patch -P1 -p1
 
 # use system libs instead:
 # curl 7.66.0
@@ -165,7 +165,7 @@ Statyczne biblioteki MuPDF.
 	%{?with_barcode:barcode=yes} \
 	verbose=yes
 
-sphinx-build -M html docs/src build/docs
+sphinx-build -M html docs build/docs
 
 %install
 rm -rf $RPM_BUILD_ROOT
