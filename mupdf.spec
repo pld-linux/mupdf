@@ -7,13 +7,13 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.26.3
+Version:	1.26.7
 Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 #Source0Download: https://www.mupdf.com/releases
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.lz
-# Source0-md5:	8b4eb93f7174065715efac8fa3790b32
+# Source0-md5:	ec588754b2e73902be86f6a3a7832c04
 Patch0:		%{name}-flags.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
