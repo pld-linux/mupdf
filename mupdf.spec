@@ -7,17 +7,18 @@
 Summary:	MuPDF - lightweight PDF, XPS and CBZ viewer and parser/rendering library
 Summary(pl.UTF-8):	MuPDF - lekka przeglądarka PDF, XPS, CBZ
 Name:		mupdf
-Version:	1.26.11
-Release:	3
+Version:	1.28.5
+Release:	1
 License:	AGPL v3+
 Group:		Applications/Text
 #Source0Download: https://www.mupdf.com/releases
 Source0:	https://www.mupdf.com/downloads/archive/%{name}-%{version}-source.tar.lz
-# Source0-md5:	fbc0a62661f5d28ebfaa367c5301d170
+# Source0-md5:	ba05cb5ccb5bd0d5c34ba91c8c7c41e3
 Patch0:		%{name}-flags.patch
 URL:		https://www.mupdf.com/
 BuildRequires:	OpenGL-glut-devel
 BuildRequires:	curl-devel >= 7.66.0
+BuildRequires:	doxygen
 BuildRequires:	freetype-devel >= 1:2.13.0
 BuildRequires:	gumbo-parser-devel >= 0.10.1
 BuildRequires:	harfbuzz-devel >= 6.0.0
@@ -132,6 +133,8 @@ Statyczne biblioteki MuPDF.
 # extract - ?, system library not supported
 # freeglut - 3.0.0 + some additional keyboard and clipboard APIs
 # lcms2 - 2.14.art: "art" fork with tread safety
+
+printf %s "%{version}" > jtest-git-id
 
 %build
 %if %{with static_libs}
