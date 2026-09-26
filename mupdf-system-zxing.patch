@@ -9,3 +9,39 @@
      SYS_ZXINGCPP_LIBS := $(shell pkg-config --libs zxing)
    endif
  
+--- mupdf-1.28.5-source/source/fitz/zxingbarcode.cpp.orig	2026-09-25 04:11:56.000000000 +0200
++++ mupdf-1.28.5-source/source/fitz/zxingbarcode.cpp	2026-09-26 22:02:08.964790891 +0200
+@@ -36,6 +36,9 @@
+ #include "BitMatrix.h"
+ #include "MultiFormatWriter.h"
+ #endif
++#if ZXING_VERSION_MAJOR >= 3
++#include "CreateBarcode.h"
++#endif
+ 
+ using namespace ZXing;
+ 
+@@ -102,11 +105,23 @@ unsigned char *barcode_create(fz_barcode
+ 			char ec_str[16];
+ 			BarcodeFormat format = formats[type];
+ 			sprintf(ec_str, "%d", ec_level);
++#if ZXING_VERSION_MAJOR >= 3
++			CreatorOptions cOpts = CreatorOptions(format, std::string("ecLevel=") + ec_str);
++#else
+ 			CreatorOptions cOpts = CreatorOptions(format).ecLevel(ec_str);
++#endif
+ 			Barcode barcode = CreateBarcodeFromText(value, cOpts);
++#if ZXING_VERSION_MAJOR >= 3
++			WriterOptions wOpts = WriterOptions().addQuietZones(!!quiet).addHRT(!!hrt).rotate(0);
++#else
+ 			WriterOptions wOpts = WriterOptions().withQuietZones(!!quiet).withHRT(!!hrt).rotate(0);
++#endif
+ 			if (size)
++#if ZXING_VERSION_MAJOR >= 3
++				wOpts.scale(-size);
++#else
+ 				wOpts.sizeHint(size);
++#endif
+ 			else
+ 				wOpts.scale(2); /* Smallest size that gives text */
+ 			Image bitmap = WriteBarcodeToImage(barcode, wOpts);
