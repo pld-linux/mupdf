@@ -1,0 +1,11 @@
+--- mupdf-1.27.2-source/Makerules.orig	2026-05-25 19:21:58.031157505 +0200
++++ mupdf-1.27.2-source/Makerules	2026-05-25 19:22:20.996659751 +0200
+@@ -297,7 +297,7 @@ else
+ 
+   HAVE_SYS_ZXINGCPP := $(shell pkg-config --exists 'zxing >= 2.0.0' && echo yes)
+   ifeq ($(HAVE_SYS_ZXINGCPP),yes)
+-    SYS_ZXINGCPP_CFLAGS := $(shell pkg-config --cflags zxing)
++    SYS_ZXINGCPP_CFLAGS := $(shell pkg-config --cflags zxing) -I/usr/include/ZXing
+     SYS_ZXINGCPP_LIBS := $(shell pkg-config --libs zxing)
+   endif
+ 
