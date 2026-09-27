@@ -1,5 +1,6 @@
 #
 # Conditional build:
+%bcond_without	apidocs		# API documentation
 %bcond_without	static_libs	# static library
 %bcond_without	archive		# archive (CBR etc.) formats using libarchive
 %bcond_without	barcode		# barcode support using zxing-cpp+zint
@@ -35,13 +36,7 @@ BuildRequires:	mujs-devel >= 1.3.8
 BuildRequires:	openjpeg2-devel >= 2.5.4
 BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	pkgconfig
-BuildRequires:	python3-furo
-BuildRequires:	python3-linkify-it-py
-BuildRequires:	python3-myst_parser
-BuildRequires:	python3-rst2pdf
-BuildRequires:	python3-sphinxcontrib-googleanalytics
-BuildRequires:	python3-sphinxcontrib-imagesvg
-BuildRequires:	sphinx-pdg
+BuildRequires:	rpm-build >= 4.6
 BuildRequires:	tar >= 1:1.22
 %{?with_tesseract:BuildRequires:	tesseract-devel >= 5.5.2}
 BuildRequires:	xorg-lib-libX11-devel
@@ -49,6 +44,15 @@ BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel >= 1.3.2
 %{?with_barcode:BuildRequires:	zint-devel >= 2.13.1}
 %{?with_barcode:BuildRequires:	zxing-cpp-nu-devel >= 2.3.0-2}
+%if %{with apidocs}
+BuildRequires:	python3-furo
+BuildRequires:	python3-linkify-it-py
+BuildRequires:	python3-myst_parser
+BuildRequires:	python3-rst2pdf
+BuildRequires:	python3-sphinxcontrib-googleanalytics
+BuildRequires:	python3-sphinxcontrib-imagesvg
+BuildRequires:	sphinx-pdg
+%endif
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	curl-libs >= 7.66.0
 %{?with_barcode:Requires:	zxing-cpp-nu >= 2.3.0-2}
@@ -122,6 +126,18 @@ Static MuPDF libraries.
 %description static -l pl.UTF-8
 Statyczne biblioteki MuPDF.
 
+%package apidocs
+Summary:	API documentation for MuPDF library
+Summary(pl.UTF-8):	Dokumentacja API biblioteki MuPDF
+Group:		Documentation
+BuildArch:	noarch
+
+%description apidocs
+API documentation for MuPDF library.
+
+%description apidocs -l pl.UTF-8
+Dokumentacja API biblioteki MuPDF.
+
 %prep
 %setup -q -n %{name}-%{version}-source
 %patch -P0 -p1
@@ -186,7 +202,9 @@ printf %s "%{version}" > jtest-git-id
 	%{?with_tesseract:tesseract=yes} \
 	verbose=yes
 
+%if %{with apidocs}
 sphinx-build -M html docs build/docs
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -231,7 +249,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CHANGES CONTRIBUTORS README build/docs/html/{_images,_static,*.html,*.js}
+%doc CHANGES CONTRIBUTORS README
 %attr(755,root,root) %{_bindir}/mupdf-gl
 %attr(755,root,root) %{_bindir}/mupdf-x11
 %attr(755,root,root) %{_bindir}/mupdf-x11-curl
@@ -242,11 +260,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libmupdf.so.*.*
+%{_libdir}/libmupdf.so.*.*
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libmupdf.so
+%{_libdir}/libmupdf.so
 %{_includedir}/mupdf
 
 %if %{with static_libs}
@@ -254,4 +272,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/libmupdf.a
 %{_libdir}/libmupdf-third.a
+%endif
+
+%if %{with apidocs}
+%files apidocs
+%defattr(644,root,root,755)
+%doc build/docs/html/{_images,_static,*.html,*.js}
 %endif
