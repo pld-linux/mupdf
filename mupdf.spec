@@ -1,6 +1,6 @@
 #
 # Conditional build:
-%bcond_without	apidocs		# API documentation
+%bcond_with	apidocs		# API documentation
 %bcond_without	static_libs	# static library
 %bcond_without	archive		# archive (CBR etc.) formats using libarchive
 %bcond_without	barcode		# barcode support using zxing-cpp+zint
